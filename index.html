@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistem Absensi Rapat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-color: #06b6d4;
+            --text-color: #1f2937;
+            --background-color: #f3f4f6;
+            --card-background: #ffffff;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --success-color: #10b981;
+        }
+
+        body {
+            background-color: var(--background-color);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text-color);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .form-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--background-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.danger {
+            background-color: var(--error-color);
+        }
+
+        .button.danger:hover {
+            background-color: #dc2626;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        table th,
+        table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-color);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .badge-present {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-absent {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .badge-sick {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-morning {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge-afternoon {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: var(--secondary-color);
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .table-container, 
+            .table-container * {
+                visibility: visible;
+            }
+            .table-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .button {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .header {
+                padding: 1.5rem;
+            }
+            .card {
+                padding: 1rem;
+            }
+            table {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistem Absensi Rapat</h1>
+            <p>Pencatatan Kehadiran Peserta</p>
+        </div>
+
+        <div class="card">
+            <h2 class="form-title">Form Absensi</h2>
+            <form id="attendanceForm">
+                <div class="form-group">
+                    <label for="date">Tanggal Rapat</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="session">Sesi Rapat</label>
+                    <select id="session" required>
+                        <option value="">Pilih Sesi</option>
+                        <option value="pagi">Pagi (08:00 WIB)</option>
+                        <option value="sore">Sore (15:00 WIB)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Nama Peserta</label>
+                    <select id="name" required>
+                        <option value="">Pilih Peserta</option>
+                        <option value="Tony">Tony</option>
+                        <option value="Sarminto">Sarminto</option>
+                        <option value="Bowo">Bowo</option>
+                        <option value="Arlana">Arlana</option>
+                        <option value="Sopiah">Sopiah</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status Kehadiran</label>
+                    <select id="status" required onchange="toggleReason()">
+                        <option value="hadir">Hadir</option>
+                        <option value="tidak_hadir">Tidak Hadir</option>
+                        <option value="sakit">Sakit</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="reasonGroup" style="display: none;">
+                    <label for="reason">Alasan/Keterangan</label>
+                    <input type="text" id="reason" placeholder="Masukkan alasan ketidakhadiran">
+                </div>
+
+                <button type="submit" class="button">
+                    Simpan Absensi
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 class="form-title">Riwayat Absensi</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Sesi</th>
+                            <th>Nama</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceHistory">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <button onclick="printAttendance()" class="button">
+            Cetak Riwayat Absensi
+        </button>
+
+        <button onclick="clearAttendanceData()" class="button danger">
+            Hapus Semua Data
+        </button>
+    </div>
+
+    <script>
+        // Inisialisasi data dari localStorage saat halaman dimuat
+        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+        const attendedParticipants = new Set(
+            JSON.parse(localStorage.getItem('attendedParticipants')) || []
+        );
+
+        // Fungsi untuk memperbarui tampilan tabel
+        function updateAttendanceTable() {
+            const tbody = document.getElementById('attendanceHistory');
+            tbody.innerHTML = ''; // Bersihkan tabel
+
+            // Urutkan data berdasarkan tanggal terbaru
+            attendanceData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            attendanceData.forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${new Date(entry.date).toLocaleDateString('id-ID', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })}</td>
+                    <td><span class="badge ${entry.session === 'pagi' ? 'badge-morning' : 'badge-afternoon'}">${entry.session === 'pagi' ? 'Pagi (08:00)' : 'Sore (15:00)'}</span></td>
+                    <td>${entry.name}</td>
+                    <td><span class="badge ${entry.status === 'hadir' ? 'badge-present' : entry.status === 'sakit' ? 'badge-sick' : 'badge-absent'}">${entry.status === 'hadir' ? 'Hadir' : entry.status === 'sakit' ? 'Sakit' : 'Tidak Hadir'}</span></td>
+                    <td>${entry.reason || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Load data saat halaman dimuat
+        window.addEventListener('load', updateAttendanceTable);
+
+        function printAttendance() {
+            window.print();
+        }
+
+        function toggleReason() {
+            const status = document.getElementById('status').value;
+            const reasonGroup = document.getElementById('reasonGroup');
+            reasonGroup.style.display = status !== 'hadir' ? 'block' : 'none';
+        }
+
+        document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('date').value;
+            const session = document.getElementById('session').value;
+            const name = document.getElementById('name').value;
+            const status = document.getElementById('status').value;
+            const reason = document.getElementById('reason').value;
+            
+            const attendanceKey = `${date}-${session}-${name}`;
+            if (attendedParticipants.has(attendanceKey)) {
+                alert('Peserta ini sudah diabsen untuk tanggal dan sesi yang sama!');
+                return;
+            }
+
+            // Buat objek data absensi baru
+            const newAttendance = {
+                date,
+                session,
+                name,
+                status,
+                reason
+            };
+
+            // Tambahkan ke array data
+            attendanceData.push(newAttendance);
+            attendedParticipants.add(attendanceKey);
+
+            // Simpan ke localStorage
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            localStorage.setItem('attendedParticipants', JSON.stringify([...attendedParticipants]));
+
+            // Update tampilan tabel
+            updateAttendanceTable();
+
+            // Reset form
+            document.getElementById('name').value = '';
+            document.getElementById('status').value = 'hadir';
+            document.getElementById('reason').value = '';
+            document.getElementById('reasonGroup').style.display = 'none';
+        });
+
+        function clearAttendanceData() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua data absensi?')) {
+                localStorage.removeItem('attendanceData');
+                localStorage.removeItem('attendedParticipants');
+                attendanceData = [];
+                attendedParticipants.clear();
+                updateAttendanceTable();
+            }
+        }
+    </script>
+</body>
+</html>
